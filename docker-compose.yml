@@ -15,6 +15,11 @@ services:
     build: ./frontend-react-js
     ports:
       - "3000:3000"
+    healthcheck:
+      test: curl --fail https://4567-${GITPOD_WORKSPACE_ID}.${GITPOD_WORKSPACE_CLUSTER_HOST}/api/activities/home
+      interval: 30s
+      timeout: 10s
+      retries: 3
     volumes:
       - ./frontend-react-js:/frontend-react-js
   dynamodb-local:
