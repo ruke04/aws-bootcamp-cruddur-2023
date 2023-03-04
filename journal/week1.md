@@ -2,8 +2,8 @@
 
 ## Homework Challenges
 - Run the Dockerfile CMD as an external script
-- Push and tag a image to DockerHub]
-- Use multi-stage building for a Dockerfile build]
+- Push and tag a image to DockerHub
+- Use multi-stage building for a Dockerfile build
 - Implement a healthcheck in the V3 Docker compose file
 - Research best practices of Dockerfiles and attempt to implement it in your Dockerfile]
 - Learn how to install Docker on your localmachine and get the same containers running outside of Gitpod / Codespaces]
@@ -128,7 +128,7 @@ Also check that postgres connection is made
 
 ![](assets/wk1/psg.png)
 
-## Multistage Build
+## Use multi-stage building for a Dockerfile build
 
 Multistage build is a technique used in Dockerfile to create a smaller and more efficient final image. This is achieved by dividing the build process into multiple stages and only including the necessary files for production in the final stage. This results in a significant reduction in the size of the image, making it more lightweight and easier to distribute.
 
@@ -165,16 +165,62 @@ COPY --chown=node:node . .
 
 CMD ["npm", "start"]
 ```
+## Run the Dockerfile CMD as an external script
 
+From the root of the directory I built the backend container with the following command
 
-## Tag image
+```bash
+docker build -t backend-flask ./backend-flask
+```
+![](assets/wk1/dockerbuild.png)
+Then I ran the container with specifying the required enviromental variables and port to be opened
+```bash
+docker run -d --rm -p 4567:4567 -it -e FRONTEND_URL='*' -e BACKEND_URL='*' backend-flask
+```
+![](assets/wk1/buildbackendimage.png)
+## Push and tag an image to DockerHub
+First I logged in to docker hub.
+![](assets/wk1/logindockerhub.png)
+Then I used the following commands to tag and push the image to docker hub.
 ```bash
 docker tag SOURCE_IMAGE[:TAG] TARGET_IMAGE[:TAG]
+docker tag backend-flask:latest ruke04/cruddur-backend-flask:1.0
+docker push ruke04/cruddur-backend-flask:1.0
 ```
-
+![](assets/wk1/dockerhubimage.png)
 
 
 ## Implement a healthcheck in the V3 Docker compose file
-
-
+Add the following lines to the docker-compose file to implement a health check
+```YAML
+    healthcheck:
+      test: curl --fail https://4567-${GITPOD_WORKSPACE_ID}.${GITPOD_WORKSPACE_CLUSTER_HOST}/api/activities/home
+      interval: 30s
+      timeout: 10s
+      retries: 3
+```
+This will show the status 
 ![](assets/wk1/healthcheck.png)
+
+## Launch an EC2 instance that has docker installed, and pull a container to demonstrate you can run your own docker processes
+* Create and launch an Ubuntu ec2 instance with key pair to securely connect to the instance
+![](assets/wk1/ec2instance.png)
+* Login to the instance via ssh from your local machine
+```bash
+ssh -i ~/Downloads/rukecomskey.pem ubuntu@ec2-3-82-209-82.compute-1.amazonaws.com
+
+```
+* Install [docker](https://docs.docker.com/engine/install/ubuntu/) engine and clone the project repo fron github and rename it to cruddur
+* Install the neccessary dependencies and run the command from the folder root 
+```bash
+docker-compose up      # To build and run the images
+docker ps              # To show the running containers
+```
+![](assets/wk1/ec2cruddur.png)
+
+* Use the following command to check docker image health.
+
+```bash
+
+docker inspect --format='{{json .State.Health}}' 33 | jq
+```
