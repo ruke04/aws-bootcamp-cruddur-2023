@@ -1,9 +1,25 @@
-FROM node:16.18
+# build image
+FROM node:16.17.0-bullseye-slim AS build
 
-ENV PORT=3000
-
-COPY . /frontend-react-js
 WORKDIR /frontend-react-js
-RUN npm install
-EXPOSE ${PORT}
+
+COPY --chown=node:node package.json .
+
+ENV NODE_ENV=pilot
+
+RUN npm install --pilot
+
+# pilot image
+FROM node:lts-alpine3.17
+
+ENV NODE_ENV pilot
+
+WORKDIR /frontend-react-js
+
+USER node
+
+COPY --from=build /frontend-react-js/node_modules /frontend-react-js/node_modules
+
+COPY --chown=node:node . .
+
 CMD ["npm", "start"]
