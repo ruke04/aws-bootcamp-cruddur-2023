@@ -182,7 +182,8 @@ Add the following variables to the backend-flask service docker-compose file
 AWS_XRAY_URL: "*4567-${GITPOD_WORKSPACE_ID}.${GITPOD_WORKSPACE_CLUSTER_HOST}*"
 AWS_XRAY_DAEMON_ADDRESS: "xray-daemon:2000"
 ```
-
+* Observed X-Ray traces within the AWS Console
+![](assets/wk2/Xray%20traces%20GUI.png)
 # CloudWatch Logs
 Add the following to the requirements.txt file.
 ```
